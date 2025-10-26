@@ -28,7 +28,7 @@ This project is a Python-based web scraper designed to extract concert informati
 2.  **Create a virtual environment:**
     ```bash
     python -m venv venv
-    source venv\Scripts\activate
+    source .venv\Scripts\activate
     ```
 
 3.  **Install dependencies:**
