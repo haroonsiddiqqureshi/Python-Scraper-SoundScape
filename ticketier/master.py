@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import requests
 from urllib.parse import urljoin
 
 from tester import get_page_destination_data, save_concert
@@ -99,9 +100,20 @@ def get_all_concert_links(listing_url):
     
     return links
 
+def trigger_cleanup(origin_name):
+    url = "http://127.0.0.1:8000/api/concerts/cleanup"
+    try:
+        # ส่ง origin ไปบอก backend ว่าเจ้าไหนที่สแกนเสร็จแล้ว
+        res = requests.post(url, json={"origin": origin_name}, timeout=10)
+        print(f"\n🧹 Cleanup Status ({origin_name}): {res.status_code}")
+        print(f"   Deleted (Soft): {res.json().get('deleted_count', 0)} items")
+    except Exception as e:
+        print(f"   ❌ Cleanup Failed: {e}")
+
 if __name__ == "__main__":
     # หน้า Ticketier
-    MAIN_PAGE_URL = "https://www.ticketier.com/events" 
+    MAIN_PAGE_URL = "https://www.ticketier.com/events"
+    ORIGIN_NAME = "Ticketier"
 
     print("🚀 Starting Ticketier Master Scraper...")
     
@@ -127,5 +139,11 @@ if __name__ == "__main__":
                 
         except Exception as e:
             print(f"   ❌ Failed to process {url}: {e}")
+        pass
+
+    print("\n------------------------------------------------")
+    print("🧹 Starting Cleanup process for missing concerts...")
+    trigger_cleanup(ORIGIN_NAME)
+    print("------------------------------------------------")
 
     print("\n🎉 All Done!")
